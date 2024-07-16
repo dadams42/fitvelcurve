@@ -64,7 +64,7 @@ class Galaxy():
         self.cvir = c
         
         # Calculate enclosed mass array with NFW profile
-        enclosed_mass = mass_nfw(self.data_r, self.mvir, self.cvir)
+        enclosed_mass = self.mass_nfw()
         # Calculate predicted velocity from v^2 = GM/r
         pred_vel = np.sqrt(G * enclosed_mass / self.data_err)
 
