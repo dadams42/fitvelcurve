@@ -11,7 +11,19 @@ class Galaxy():
 
     Args:
         mvir (float): galaxy virial mass (Msun)
-        cvir (float): dark matter concentration parameter (Msun)
+        cvir (float): dark matter concentration parameter
+        data_vel (array): galaxy velocity curve data (km/s)
+        data_err (array): errors on galaxy velocity curve data (km/s)
+        data_r (array): radial positions corresponding to galaxy velocity curve data (km)
+
+    Attibutes:
+        rhocrit (float): critical density of the universe (kg/m^3)
+        fac (int): critical overdensity for defining virial radius
+        mvir (float): galaxy virial mass (Msun)
+        cvir (float): dark matter concentration parameter
+        data_vel (array): galaxy velocity curve data (km/s)
+        data_err (array): errors on galaxy velocity curve data (km/s)
+        data_r (array): radial positions corresponding to galaxy velocity curve data (km)
     """
 
     def __init__(self, mvir, cvir, data_vel, data_err, data_r):
@@ -31,10 +43,18 @@ class Galaxy():
         self.cvir = cvir # Unitless
 
     def delc(self):
+        """
+        Helper integral for computing the mass enclosed by the NFW profile
+
+        Returns:
+            float: value of helper integral
+        """
         return (self.fac/3)*self.cvir**3/(np.log(1+self.cvir)-self.cvir/(1+self.cvir))
 
     def rho_nfw(self):
-        #NFW density (virial mass in Msun, concentration parameter)
+        """
+        NFW density (virial mass in Msun, concentration parameter)
+        """
     
         rv = (self.mvir/((4/3) * np.pi * self.fac * self.rhocrit))**(1/3) 
         rs = rv / self.cvir
@@ -43,7 +63,12 @@ class Galaxy():
         return rhos/((self.data_r/rs)*(1.+(self.data_r/rs))**2.)
 
     def mass_nfw(self):
-        #Enclosed mass (virial mass in Msun, concentration parameter) in Msun
+        """
+        Enclosed mass (virial mass in Msun, concentration parameter) in Msun
+
+        Returns:
+            array: mass profile at radial position of data_r
+        """
     
         rv = (self.mvir/((4/3) * np.pi * self.fac * self.rhocrit))**(1/3)
         rs = rv / self.cvir
@@ -52,9 +77,15 @@ class Galaxy():
         return 4 * np.pi * rhos * rs**3 * (np.log((self.data_r + rs) / rs) + rs/(self.data_r + rs) - 1) 
     
     def log_like(self, x):
-        '''
+        """
         Calculate log-likelihood using the data and NFW parameters (c, log10(M_h))
-        '''
+
+        Args:
+            x (array): NFW parameters [log10(mvir), cvir]
+
+        Returns:
+            float: log likelihood
+        """
 
         # Read parameters from array
         log_m_h, c = x
@@ -74,9 +105,15 @@ class Galaxy():
         return llh
 
     def ptform(self, x):
-        '''
-        Prior transform.
-        '''
+        """
+        Prior transform
+
+        Args:
+            x (array): two uniform samples between 0 and 1
+
+        Returns:
+            array: NFW parameters [log10(mvir), cvir] 
+        """
 
         # Make sure x is a numpy array
         x = np.array(x)
@@ -89,8 +126,13 @@ class Galaxy():
         # Return transformed x
         return x
     
-    # Function to run sampler
     def run_sampler(self):
+        """
+        Runs sampler
+
+        Returns:
+            dynesty sampler object
+        """
         sampler = dynesty.DynamicNestedSampler(self.log_like, self.ptform, ndim = 2, walks = 50)
         sampler.run_nested()
         return sampler
