@@ -8,7 +8,7 @@ def test_ptform():
     '''
 
     # Create an instance of the Galaxy() class
-    r_bins = np.linspace(0, 25, 5)
+    r_bins = np.linspace(1, 31, 5)
     gal = Galaxy(r_bins)
 
     # Check both inputs equal to 0 (should return min values of each)
@@ -33,7 +33,31 @@ def test_ptform():
 
 def test_rho_nfw():
     '''
-    Check the NFW density profile in the Galaxy() class vs. the built-in astropy version
+    Check the NFW profile in the Galaxy() class vs. the built-in astropy version
     '''
+
+    # Set mvir and cvir
+    mvir = 1e13
+    cvir = 20
+    # Create array of radial points
+    r_bins = np.linspace(1, 31, 5)
+
+    # Initiate a Galaxy() object
+    test_gal = Galaxy(r_bins, mvir = mvir, cvir = cvir)
+    # Compute the NFW density and mass profiles from Galaxy()
+    rho_nfw = test_gal.rho_nfw()
+
+    # Compute the same thing with astropy
+    astropy_nfw_model = astropy.modeling.physical_models.NFW(mass = mvir, 
+                                                             concentration = cvir,
+                                                             massfactor = ('critical', 102))
+    astropy_rho_nfw = astropy_nfw_model.evaluate(r_bins)
+
+    # Check that these are equal within tolerance
+    assert rho_nfw == pytest.approx(astropy_rho_nfw)
+
+
+
+
 
 
