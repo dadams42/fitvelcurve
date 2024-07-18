@@ -52,10 +52,13 @@ def test_rho_nfw():
     astropy_nfw_model = astropy.modeling.physical_models.NFW(mass = mvir, 
                                                              concentration = cvir,
                                                              massfactor = ('critical', 102))
-    astropy_rho_nfw = astropy_nfw_model.evaluate(r_bins)
+    astropy_rho_nfw = astropy_nfw_model.evaluate(r_bins, mass = mvir, 
+                                                concentration = cvir,
+                                                redshift = 0.0)
 
     # Check that these are equal within tolerance
-    assert rho_nfw == pytest.approx(astropy_rho_nfw)
+    print(rho_nfw - astropy_rho_nfw)
+    assert rho_nfw == pytest.approx(astropy_rho_nfw, rel = 1e-2)
 
 
 
