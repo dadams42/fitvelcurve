@@ -66,7 +66,7 @@ class Galaxy():
         # Calculate enclosed mass array with NFW profile
         enclosed_mass = self.mass_nfw()
         # Calculate predicted velocity from v^2 = GM/r
-        pred_vel = np.sqrt(G * enclosed_mass / self.data_err)
+        pred_vel = np.sqrt(G.value * enclosed_mass / self.data_err)
 
         # Calculate log-likelihood
         llh = -1/2 * np.sum(((self.data_vel - pred_vel) / self.data_err) ** 2)
