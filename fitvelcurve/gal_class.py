@@ -4,7 +4,6 @@ from astropy.constants import G, M_sun, kpc
 from astropy import units as u
 from astropy.cosmology import Planck15 as cosmo
 import dynesty
-
 from dynesty import plotting as dyplot
 ###
 
@@ -120,6 +119,7 @@ class Galaxy():
 
         # Calculate log-likelihood
         llh = -1/2 * np.sum(((self.data_vel - pred_vel) / self.data_err) ** 2)
+        llh = -1/2 * np.sum(((self.data_vel - pred_vel) / self.data_err) ** 2)
 
         return llh
 
@@ -166,13 +166,10 @@ class Galaxy():
         rfig, raxes = dyplot.runplot(resu)
 
         # Plot traces and 1-D marginalized posteriors.
+        # Plot traces and 1-D marginalized posteriors.
         tfig, taxes = dyplot.traceplot(resu)
 
         # Plot the 2-D marginalized posteriors.
         cfig, caxes = dyplot.cornerplot(resu)
 
         return sampler
-    
-
-
-    

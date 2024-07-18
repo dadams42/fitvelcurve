@@ -57,11 +57,4 @@ def test_rho_nfw():
                                                 redshift = 0.0)
 
     # Check that these are equal within tolerance
-    print(rho_nfw - astropy_rho_nfw)
     assert rho_nfw == pytest.approx(astropy_rho_nfw, rel = 1e-2)
-
-
-
-
-
-
