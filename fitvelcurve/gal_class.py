@@ -6,41 +6,6 @@ from astropy.cosmology import Planck15 as cosmo
 import dynesty
 
 from dynesty import plotting as dyplot
-
-### alternative functions for mass_nfw / constants etc.
-import numpy as np
-from numpy import pi, log
-
-
-#some constants
-h = 0.678 #Gaia 2016
-
-G = 6.67430e-11
-
-Msun = 1.98847e30
-kpc = 3.0856775814913673e19
-
-fac = 102
-
-rhocrit = 3*(100*h/(kpc))**2/(8*np.pi*G) * kpc**3 / Msun
-
-def delc(c):
-    return (fac/3)*c**3/(log(1+c)-c/(1+c))
-    
-
-def mass_nfw(r, mvir, cvir):
-    
-    rv = (mvir/((4/3) * pi * fac * rhocrit))**(1/3)
-    
-    rs = rv / cvir
-    
-    rhos = rhocrit*delc(cvir)
-    
-    return 4 * pi *  rhos * rs**3 * (log((r + rs) / rs) + rs/(r + rs) - 1) 
-
-def velocity(x, mass, c):
-    return np.sqrt(G * Msun * mass_nfw(x, mass, c) / x/kpc) / 1e3    
-
 ###
 
 
@@ -53,16 +18,16 @@ class Galaxy():
         cvir (float): dark matter concentration parameter
         data_vel (array): galaxy velocity curve data (km/s)
         data_err (array): errors on galaxy velocity curve data (km/s)
-        data_r (array): radial positions corresponding to galaxy velocity curve data (km)
+        data_r (array): radial positions corresponding to galaxy velocity curve data (kpc)
 
     Attibutes:
-        rhocrit (float): critical density of the universe (kg/m^3)
+        rhocrit (float): critical density of the universe (Msun/kpc^3)
         fac (int): critical overdensity for defining virial radius
         mvir (float): galaxy virial mass (Msun)
         cvir (float): dark matter concentration parameter
         data_vel (array): galaxy velocity curve data (km/s)
         data_err (array): errors on galaxy velocity curve data (km/s)
-        data_r (array): radial positions corresponding to galaxy velocity curve data (km)
+        data_r (array): radial positions corresponding to galaxy velocity curve data (kpc)
     """
 
     def __init__(self, data_r, mvir=1e10, cvir=20, data_vel=[], data_err=[]):
@@ -121,6 +86,18 @@ class Galaxy():
     
         return 4 * np.pi * rhos * rs**3 * (np.log((self.data_r + rs) / rs) + rs/(self.data_r + rs) - 1) 
     
+    def velocity(self):
+        """
+        Calculate the velocity rotation curve (in km/s)
+
+        """
+        # Calculate enclosed mass array with NFW profile
+        enclosed_mass = self.mass_nfw()
+
+        # Calculate predicted velocity from v^2 = GM/r
+        pred_vel = np.sqrt(G.value * enclosed_mass * M_sun.value / self.data_r / kpc.value) / 1000
+        return pred_vel
+    
     def log_like(self, x):
         """
         Calculate log-likelihood using the data and NFW parameters (c, log10(M_h))
@@ -136,23 +113,13 @@ class Galaxy():
         log_m_h, c = x
 
         # Redefine the class attributes to match these
-        #self.mvir = 10**log_m_h
-        #self.cvir = c
-        
-        # Calculate enclosed mass array with NFW profile
-        #enclosed_mass = self.mass_nfw()
+        self.mvir = 10**log_m_h
+        self.cvir = c
 
-  
-
-        # Calculate predicted velocity from v^2 = GM/r
-        #pred_vel = np.sqrt(G.value * enclosed_mass / self.data_err)
-
-        pred_vel = velocity(self.data_r, 10.0**x[0], x[1])
+        pred_vel = self.velocity()
 
         # Calculate log-likelihood
-        #llh = -1/2 * np.sum(((self.data_vel - pred_vel) / self.data_err) ** 2)
-
-        llh = -0.5 * np.sum((self.data_vel - pred_vel)**2 / self.data_err**2)
+        llh = -1/2 * np.sum(((self.data_vel - pred_vel) / self.data_err) ** 2)
 
         return llh
 
@@ -195,13 +162,13 @@ class Galaxy():
         print("number of iterations = ", resu.niter)
 
 
-# Plot a summary of the run.
+        # Plot a summary of the run.
         rfig, raxes = dyplot.runplot(resu)
 
-# Plot traces and 1-D marginalized posteriors.
+        # Plot traces and 1-D marginalized posteriors.
         tfig, taxes = dyplot.traceplot(resu)
 
-# Plot the 2-D marginalized posteriors.
+        # Plot the 2-D marginalized posteriors.
         cfig, caxes = dyplot.cornerplot(resu)
 
         return sampler
