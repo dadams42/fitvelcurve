@@ -119,7 +119,6 @@ class Galaxy():
 
         # Calculate log-likelihood
         llh = -1/2 * np.sum(((self.data_vel - pred_vel) / self.data_err) ** 2)
-        llh = -1/2 * np.sum(((self.data_vel - pred_vel) / self.data_err) ** 2)
 
         return llh
 
@@ -165,7 +164,6 @@ class Galaxy():
         # Plot a summary of the run.
         rfig, raxes = dyplot.runplot(resu)
 
-        # Plot traces and 1-D marginalized posteriors.
         # Plot traces and 1-D marginalized posteriors.
         tfig, taxes = dyplot.traceplot(resu)
 
