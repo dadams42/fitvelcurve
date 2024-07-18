@@ -14,11 +14,17 @@ class Galaxy():
         cvir (float): dark matter concentration parameter (Msun)
     """
 
-    def __init__(self, mvir, cvir, data_vel, data_err, data_r):
+    def __init__(self, data_r, mvir=1e10, cvir=20, data_vel=[], data_err=[]):
 
-        #Define constants
+        # Check that data is in the correct format
+        assert len(data_r) > 0, "An array of radial values must be provided"
+        if len(data_vel) > 0:
+            assert data_vel.shape == data_r.shape, "The velocity array must have the same length as the radial data"
+        if len(data_err) > 0:
+            assert data_err.shape == data_vel.shape, "The velocity error array must have the same length as the velocity array"
+
+        # Define constants
         self.fac = 102
-
         self.rhocrit = (3*(100*cosmo.h/(kpc*u.kpc))**2/(8*np.pi*G) * (kpc*u.kpc)**3 / (M_sun*u.Msun)).value
 
         # Data arrays
