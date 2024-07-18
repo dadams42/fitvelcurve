@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 import astropy
+from fitvelcurve.gal_class import Galaxy
 
 def test_ptform():
     '''
