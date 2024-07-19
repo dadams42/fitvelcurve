@@ -4,6 +4,9 @@ from astropy.constants import G, M_sun, kpc
 from astropy import units as u
 from astropy.cosmology import Planck15 as cosmo
 import dynesty
+from dynesty import plotting as dyplot
+###
+
 
 class Galaxy():
     """
@@ -14,16 +17,16 @@ class Galaxy():
         cvir (float): dark matter concentration parameter
         data_vel (array): galaxy velocity curve data (km/s)
         data_err (array): errors on galaxy velocity curve data (km/s)
-        data_r (array): radial positions corresponding to galaxy velocity curve data (km)
+        data_r (array): radial positions corresponding to galaxy velocity curve data (kpc)
 
     Attibutes:
-        rhocrit (float): critical density of the universe (kg/m^3)
+        rhocrit (float): critical density of the universe (Msun/kpc^3)
         fac (int): critical overdensity for defining virial radius
         mvir (float): galaxy virial mass (Msun)
         cvir (float): dark matter concentration parameter
         data_vel (array): galaxy velocity curve data (km/s)
         data_err (array): errors on galaxy velocity curve data (km/s)
-        data_r (array): radial positions corresponding to galaxy velocity curve data (km)
+        data_r (array): radial positions corresponding to galaxy velocity curve data (kpc)
     """
 
     def __init__(self, data_r, mvir=1e10, cvir=20, data_vel=[], data_err=[]):
@@ -82,6 +85,18 @@ class Galaxy():
     
         return 4 * np.pi * rhos * rs**3 * (np.log((self.data_r + rs) / rs) + rs/(self.data_r + rs) - 1) 
     
+    def velocity(self):
+        """
+        Calculate the velocity rotation curve (in km/s)
+
+        """
+        # Calculate enclosed mass array with NFW profile
+        enclosed_mass = self.mass_nfw()
+
+        # Calculate predicted velocity from v^2 = GM/r
+        pred_vel = np.sqrt(G.value * enclosed_mass * M_sun.value / self.data_r / kpc.value) / 1000
+        return pred_vel
+    
     def log_like(self, x):
         """
         Calculate log-likelihood using the data and NFW parameters (c, log10(M_h))
@@ -99,11 +114,8 @@ class Galaxy():
         # Redefine the class attributes to match these
         self.mvir = 10**log_m_h
         self.cvir = c
-        
-        # Calculate enclosed mass array with NFW profile
-        enclosed_mass = self.mass_nfw()
-        # Calculate predicted velocity from v^2 = GM/r
-        pred_vel = np.sqrt(G.value * enclosed_mass / self.data_err)
+
+        pred_vel = self.velocity()
 
         # Calculate log-likelihood
         llh = -1/2 * np.sum(((self.data_vel - pred_vel) / self.data_err) ** 2)
@@ -141,7 +153,21 @@ class Galaxy():
         """
         sampler = dynesty.DynamicNestedSampler(self.log_like, self.ptform, ndim = 2, walks = 50)
         sampler.run_nested()
-        return sampler
-    
 
-    
+        ##plotting results:
+
+        resu = sampler.results 
+
+        print("number of iterations = ", resu.niter)
+
+
+        # Plot a summary of the run.
+        rfig, raxes = dyplot.runplot(resu)
+
+        # Plot traces and 1-D marginalized posteriors.
+        tfig, taxes = dyplot.traceplot(resu)
+
+        # Plot the 2-D marginalized posteriors.
+        cfig, caxes = dyplot.cornerplot(resu)
+
+        return sampler
