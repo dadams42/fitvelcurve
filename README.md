@@ -5,7 +5,7 @@ Title: Open-source package for derived dark matter density profiles from rotatio
 
 Description: We fit an NFW profile [1] using the nested sampling package dynesty [2] to synthetic (mock) rotation curve data and perform an end-to-end test to validate against the underlying profile for the halo. 
 
-Acknowledgments: We thank the team at the Code/Astro workshop for their invaluable help in making this possible, including Sarah Blunt, Jason Wang, and Suchitra Narayana, who oversaw this project. 
+Acknowledgments: We thank the team at the Code/Astro workshop for their invaluable help in making this possible, including Sarah Blunt, Jason Wang, and Suchitra Narayanan, who oversaw this project. 
 
 Sources: For information on dynesty, see https://dynesty.readthedocs.io/en/stable/ 
 
