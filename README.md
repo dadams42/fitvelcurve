@@ -13,4 +13,4 @@ References:
 
 [1]: Navarro, Julio F., Carlos S. Frenk, and Simon DM White. "A universal density profile from hierarchical clustering." The Astrophysical Journal 490.2 (1997): 493.
 
-[2]: Joshua S Speagle, dynesty: a dynamic nested sampling package for estimating Bayesian posteriors and evidences, Monthly Notices of the Royal Astronomical Society, Volume 493, Issue 3, April 2020, Pages 3132–3158, https://doi.org/10.1093/mnras/staa278
+[2]: Joshua S Speagle, "dynesty: a dynamic nested sampling package for estimating Bayesian posteriors and evidences." Monthly Notices of the Royal Astronomical Society, Volume 493, Issue 3, April 2020, Pages 3132–3158, https://doi.org/10.1093/mnras/staa278
