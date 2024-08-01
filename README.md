@@ -7,7 +7,7 @@ Description: We fit an NFW profile [1] using the nested sampling package dynesty
 
 Acknowledgments: We thank the team at the Code/Astro workshop for their invaluable help in making this possible, including Sarah Blunt, Jason Wang, and Suchitra Narayanan, who oversaw this project. 
 
-Sources: For information on dynesty, see https://dynesty.readthedocs.io/en/stable/ 
+Sources: For information on dynesty, see: https://dynesty.readthedocs.io/en/stable/ 
 
 References:
 
